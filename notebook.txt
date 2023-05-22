@@ -1,0 +1,7 @@
+MutationObserver behaviour - 
+
+  https://jsfiddle.net/4hrx56o3/35/
+
+Mutation Record - 
+
+  https://developer.mozilla.org/en-US/docs/Web/API/MutationRecord
