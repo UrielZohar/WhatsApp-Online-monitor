@@ -4,7 +4,7 @@ let isUnderMonitoring = false;
 
 const startWatching = (whatsappChromeExtensionContactName) => {
   isUnderMonitoring = true;
-  chroe.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     message: 'SET_CONTACT_NAME_WATCHING',
     whatsappChromeExtensionContactName
   });
@@ -18,7 +18,9 @@ const stopWatching = () => {
 };
 
 chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
+
   if (msg.message !== 'GET_CONTACT_NAME_CONTENT') {
+    sendResponse({whatsappChromeExtensionContactName});
     return;
   }
   const mainElement = document.querySelector('#app');
@@ -85,53 +87,52 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
     whatsappChromeExtensionOnlineObserver.disconnect();
   }
   
-  if (msg === 'START_TO_WATCH_ONLINE') {
-    const isOnline = !!mainElement.querySelector('span[title="online"]');
+  const isOnline = !!mainElement.querySelector('span[title="online"]');
 
-    if (isOnline) {
-      new Notification(...notificationConfig);
+  if (isOnline) {
+    new Notification(...notificationConfig);
+    stopWatching();
+    return;
+  }
+  
+  // Options for the observer (which mutations to observe)
+  const config = { attributes: true, childList: true, subtree: true };
+
+  // Callback function to execute when mutations are observed
+  const callback = (mutationList, observer) => {
+    const isOnline = !!mainElement.querySelector('span[title="online"]');
+    const currentContactName = mainElement
+      .querySelector('span[data-testid="conversation-info-header-chat-title"]')
+      .innerHTML;
+
+    if (currentContactName !== whatsappChromeExtensionContactName) {
+      new Notification('🔎❌', {
+        body: `Stopped monitoring ${whatsappChromeExtensionContactName}`,
+        icon: profilePicSrc,
+      });
+      observer.disconnect();
       stopWatching();
       return;
     }
-    
-    // Options for the observer (which mutations to observe)
-    const config = { attributes: true, childList: true, subtree: true };
 
-    // Callback function to execute when mutations are observed
-    const callback = (mutationList, observer) => {
-      const isOnline = !!mainElement.querySelector('span[title="online"]');
-      const currentContactName = mainElement
-        .querySelector('span[data-testid="conversation-info-header-chat-title"]')
-        .innerHTML;
+    if (isOnline) {
+      new Notification(...notificationConfig);
+      observer.disconnect();
+      whatsappChromeExtensionOnlineObserver = null;
+      return;
+    }
+  };
+  
+  // Create an observer instance linked to the callback function
+  whatsappChromeExtensionOnlineObserver = new MutationObserver(callback);
+  
+  // Start observing the target node for configured mutations
+  whatsappChromeExtensionOnlineObserver.observe(mainElement, config);
 
-      if (currentContactName !== whatsappChromeExtensionContactName) {
-        new Notification('🔎❌', {
-          body: `Stopped monitoring ${whatsappChromeExtensionContactName}`,
-          icon: profilePicSrc,
-        });
-        observer.disconnect();
-        stopWatching();
-        return;
-      }
-
-      if (isOnline) {
-        new Notification(...notificationConfig);
-        observer.disconnect();
-        whatsappChromeExtensionOnlineObserver = null;
-        return;
-      }
-    };
-    
-    // Create an observer instance linked to the callback function
-    whatsappChromeExtensionOnlineObserver = new MutationObserver(callback);
-    
-    // Start observing the target node for configured mutations
-    whatsappChromeExtensionOnlineObserver.observe(mainElement, config);
-
-    new Notification('🔎🟢', {
-      body: `Started monitoring ${whatsappChromeExtensionContactName}`,
-      icon: profilePicSrc,
-    });
-    startWatching(whatsappChromeExtensionContactName);
-  }
+  new Notification('🔎🟢', {
+    body: `Started monitoring ${whatsappChromeExtensionContactName}`,
+    icon: profilePicSrc,
+  });
+  startWatching(whatsappChromeExtensionContactName);
+  sendResponse({whatsappChromeExtensionContactName})
 });

@@ -25,8 +25,11 @@ chrome.tabs.query({active: true, currentWindow: true}, async tabs => {
   }
 });
 
-const startMonitoring = () => {
-  chrome.runtime.sendMessage({message: 'START_TO_WATCH_ONLINE'});
+const startMonitoring = async () => {
+  const tabs = await chrome.tabs.query({active: true, currentWindow: true});
+  const { whatsappChromeExtensionContactName } = await chrome.tabs.sendMessage(tabs[0].id, {message: 'START_TO_WATCH_ONLINE'});
+  document.body.setAttribute('class', 'status-ok');
+  document.getElementById('contactName').innerHTML = whatsappChromeExtensionContactName;
 }
 
 document.querySelector('.button-title-button').addEventListener('click', startMonitoring);
