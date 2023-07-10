@@ -12,6 +12,28 @@ body {
   border: 2px solid var(--font-color);
 }
 
+.motioring-title, .error-title, .button-title {
+  display: none;
+}
+
+body.status-ok {
+  .motioring-title {
+    display: block;
+  }
+}
+
+body.status-error {
+  .error-title {
+    display: block;
+  }
+}
+
+body.status-deady-to-use {
+  .button-title {
+    display: block;
+  }
+}
+
 .container {
   margin-top: 10px;
   width: 100%;
@@ -28,7 +50,7 @@ body {
     text-align: center;
   }
 
-  .motioring-title {
+  .motioring-title, .error-title, .button-title {
     font-size: var(--body-font-size);
   }
 

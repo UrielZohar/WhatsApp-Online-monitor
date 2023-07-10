@@ -1,10 +1,50 @@
 let whatsappChromeExtensionOnlineObserver = null;
 let whatsappChromeExtensionContactName = null;
+let isUnderMonitoring = false;
 
-chrome.runtime.onMessage.addListener(async msg => {
-  console.log('content.js received message', msg);
-  const isOnWhatsAppWebDomain = window.location.href.includes('web.whatsapp.com');
-  if (msg != 'START_TO_WATCH_ONLINE' && isOnWhatsAppWebDomain) {
+const startWatching = (whatsappChromeExtensionContactName) => {
+  isUnderMonitoring = true;
+  chroe.runtime.sendMessage({
+    message: 'SET_CONTACT_NAME_WATCHING',
+    whatsappChromeExtensionContactName
+  });
+};
+
+const stopWatching = () => {
+  isUnderMonitoring = false;
+  chroe.runtime.sendMessage({
+    message: 'SET_CONTACT_NAME_OFF',
+  });
+};
+
+chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
+  if (msg === 'GET_CONTACT_NAME_CONTENT') {
+    whatsappChromeExtensionContactName = mainElement
+      .querySelector('span[data-testid="conversation-info-header-chat-title"]')
+      ?.innerHTML;
+    if (whatsappChromeExtensionContactName) {
+
+      sendResponse({
+        type: 'ok',
+        whatsappChromeExtensionContactName,
+        isUnderMonitoring,
+      });
+    } else {
+      sendResponse({
+        type: 'error',
+        message: 'No contact selected',
+      });
+    }
+  } else {
+    sendResponse({
+      type: 'error',
+      message: 'Not on WhatsApp Web domain',
+    });
+  }
+});
+
+chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
+  if (msg != 'START_TO_WATCH_ONLINE') {
     return;
   }
 
@@ -36,10 +76,7 @@ chrome.runtime.onMessage.addListener(async msg => {
   }
 
   // notify background.js about the contact name
-  chrome.runtime.sendMessage({
-    message: 'SET_CONTACT_NAME',
-    payload: whatsappChromeExtensionContactName,
-  });
+  startWatching(whatsappChromeExtensionContactName);
 
   const notificationConfig = [
     'Online 🟢',
@@ -58,6 +95,7 @@ chrome.runtime.onMessage.addListener(async msg => {
 
     if (isOnline) {
       new Notification(...notificationConfig);
+      stopWatching();
       return;
     }
     
@@ -77,6 +115,7 @@ chrome.runtime.onMessage.addListener(async msg => {
           icon: profilePicSrc,
         });
         observer.disconnect();
+        stopWatching();
         return;
       }
 
@@ -98,5 +137,6 @@ chrome.runtime.onMessage.addListener(async msg => {
       body: `Started monitoring ${whatsappChromeExtensionContactName}`,
       icon: profilePicSrc,
     });
+    startWatching(whatsappChromeExtensionContactName);
   }
 });

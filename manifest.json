@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "WhatsApp - Online Monitor",
   "description": "Get a notification once the user is online",
-  "version": "1.01",
+  "version": "1.02",
   "content_scripts": [
     {
       "matches": ["https://web.whatsapp.com/"],
@@ -20,5 +20,8 @@
   },
   "action": {
     "default_popup": "html/popup.html"
-  }
+  },
+  "permissions": [
+    "tabs"
+  ]
 }

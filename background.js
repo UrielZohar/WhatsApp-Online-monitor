@@ -1,4 +1,5 @@
 let whatsappChromeExtensionContactName = '';
+let isUnderMonitoring = false;
 
 chrome.action.onClicked.addListener(async () => {
   const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
@@ -6,14 +7,29 @@ chrome.action.onClicked.addListener(async () => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message?.message === 'SET_CONTACT_NAME') {
+  if (message?.message === 'SET_CONTACT_NAME_WATCHING') {
+    isUnderMonitoring = true;
     whatsappChromeExtensionContactName = message.payload;
     sendResponse(true);
   }
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.message === 'GET_CONTACT_NAME') {
-    sendResponse(whatsappChromeExtensionContactName);
+  if (message?.message === 'SET_CONTACT_NAME_OFF') {
+    isUnderMonitoring = false;
+    whatsappChromeExtensionContactName = '';
+    sendResponse(true);
   }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (whatsappChromeExtensionContactName) {
+    sendResponse({
+      whatsappChromeExtensionContactName,
+      isUnderMonitoring
+    });
+  }
+  chrome.runtime.sendMessage('GET_CONTACT_NAME_CONTENT', (message, sender, sendResponse) => {
+    sendResponse(whatsappChromeExtensionContactName);
+  });
 });
