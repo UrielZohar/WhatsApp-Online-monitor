@@ -2,6 +2,11 @@ let whatsappChromeExtensionOnlineObserver = null;
 let whatsappChromeExtensionContactName = null;
 
 chrome.runtime.onMessage.addListener(async msg => {
+  console.log('content.js received message', msg);
+  const isOnWhatsAppWebDomain = window.location.href.includes('web.whatsapp.com');
+  if (msg != 'START_TO_WATCH_ONLINE' && isOnWhatsAppWebDomain) {
+    return;
+  }
 
   if (!("Notification" in window)) {
     // Check if the browser supports notifications
@@ -29,6 +34,12 @@ chrome.runtime.onMessage.addListener(async msg => {
   if (!whatsappChromeExtensionContactName) {
     return;
   }
+
+  // notify background.js about the contact name
+  chrome.runtime.sendMessage({
+    message: 'SET_CONTACT_NAME',
+    payload: whatsappChromeExtensionContactName,
+  });
 
   const notificationConfig = [
     'Online 🟢',

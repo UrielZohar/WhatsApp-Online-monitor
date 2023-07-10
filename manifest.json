@@ -3,7 +3,6 @@
   "name": "WhatsApp - Online Monitor",
   "description": "Get a notification once the user is online",
   "version": "1.01",
-  "action": {},
   "content_scripts": [
     {
       "matches": ["https://web.whatsapp.com/"],
@@ -18,5 +17,8 @@
     "32": "icons/32.png",
     "48": "icons/48.png",
     "128": "icons/128.png"
+  },
+  "action": {
+    "default_popup": "html/popup.html"
   }
 }
