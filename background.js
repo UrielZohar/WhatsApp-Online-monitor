@@ -23,13 +23,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (whatsappChromeExtensionContactName) {
-    sendResponse({
-      whatsappChromeExtensionContactName,
-      isUnderMonitoring
-    });
+  if (message?.message != 'GET_CONTACT_NAME_BACKGRORUND') {
+    return;
   }
-  chrome.runtime.sendMessage('GET_CONTACT_NAME_CONTENT', (message, sender, sendResponse) => {
-    sendResponse(whatsappChromeExtensionContactName);
+  sendResponse({
+    whatsappChromeExtensionContactName,
+    isUnderMonitoring,
+    type: whatsappChromeExtensionContactName ? 'ok' : 'error',
   });
 });

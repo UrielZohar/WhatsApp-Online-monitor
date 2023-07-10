@@ -18,33 +18,29 @@ const stopWatching = () => {
 };
 
 chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
-  if (msg === 'GET_CONTACT_NAME_CONTENT') {
-    whatsappChromeExtensionContactName = mainElement
-      .querySelector('span[data-testid="conversation-info-header-chat-title"]')
-      ?.innerHTML;
-    if (whatsappChromeExtensionContactName) {
-
-      sendResponse({
-        type: 'ok',
-        whatsappChromeExtensionContactName,
-        isUnderMonitoring,
-      });
-    } else {
-      sendResponse({
-        type: 'error',
-        message: 'No contact selected',
-      });
-    }
+  if (msg.message !== 'GET_CONTACT_NAME_CONTENT') {
+    return;
+  }
+  const mainElement = document.querySelector('#app');
+  whatsappChromeExtensionContactName = mainElement
+    .querySelector('span[data-testid="conversation-info-header-chat-title"]')
+    ?.innerHTML;
+  if (whatsappChromeExtensionContactName) {
+    sendResponse({
+      type: 'ok',
+      whatsappChromeExtensionContactName,
+      isUnderMonitoring,
+    });
   } else {
     sendResponse({
       type: 'error',
-      message: 'Not on WhatsApp Web domain',
+      message: 'No contact selected',
     });
   }
 });
 
 chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
-  if (msg != 'START_TO_WATCH_ONLINE') {
+  if (msg.message != 'START_TO_WATCH_ONLINE') {
     return;
   }
 
@@ -65,7 +61,6 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
   }
 
   const mainElement = document.querySelector('#app');
-
   const profilePicSrc = mainElement.querySelector('div[title="Profile Details"] img')?.src;
   whatsappChromeExtensionContactName = mainElement
       .querySelector('span[data-testid="conversation-info-header-chat-title"]')

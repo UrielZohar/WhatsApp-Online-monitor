@@ -1,7 +1,8 @@
 :root {
   --font-color: #000000;
   --background-color: #24F724;
-  --title-font-size: 26px;
+  --font-color-error: #f81515;
+  --title-font-size: 24px;
   --body-font-size: 16px;
 }
 
@@ -43,15 +44,23 @@ body.status-deady-to-use {
   align-items: center;
   gap: 10px;
 
-  .name-title {
+  .name-title, .button-title-button {
     font-size: var(--title-font-size);
     font-weight: bold;
     color: var(--font-color);
     text-align: center;
   }
 
-  .motioring-title, .error-title, .button-title {
+  .motioring-title, .error-title, .button-title, .button-title-button {
     font-size: var(--body-font-size);
+  }
+
+  .button-title-button {
+    cursor: pointer;
+  }
+
+  .error-title {
+    color: var(--font-color-error);
   }
 
   .text {
