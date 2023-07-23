@@ -12,7 +12,7 @@ const startWatching = (whatsappChromeExtensionContactName) => {
 
 const stopWatching = () => {
   isUnderMonitoring = false;
-  chroe.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     message: 'SET_CONTACT_NAME_OFF',
   });
 };
@@ -124,6 +124,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
   };
   
   // Create an observer instance linked to the callback function
+  console.log('Watching for online status changes started');
   whatsappChromeExtensionOnlineObserver = new MutationObserver(callback);
   
   // Start observing the target node for configured mutations

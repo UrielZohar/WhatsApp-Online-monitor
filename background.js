@@ -9,7 +9,7 @@ chrome.action.onClicked.addListener(async () => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.message === 'SET_CONTACT_NAME_WATCHING') {
     isUnderMonitoring = true;
-    whatsappChromeExtensionContactName = message.payload;
+    whatsappChromeExtensionContactName = message.whatsappChromeExtensionContactName;
     sendResponse(true);
   }
 });
@@ -23,7 +23,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message?.message != 'GET_CONTACT_NAME_BACKGRORUND') {
+  if (message?.message != 'GET_CONTACT_NAME_BACKGORUND') {
     return;
   }
   sendResponse({
